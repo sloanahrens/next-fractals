@@ -37,11 +37,11 @@ export const CenterControls: React.FC<CenterControlsProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleApply();
-    }
-  };
+  // const handleKeyPress = (e: React.KeyboardEvent) => {
+  //   if (e.key === 'Enter') {
+  //     handleApply();
+  //   }
+  // };
 
   const handleReset = () => {
     const defaultX = -0.75;

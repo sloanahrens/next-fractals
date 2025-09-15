@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 📚 Project Documentation
+
+- **[🏠 Main Project](README.md)** - Next Fractals overview and quick deployment
+- **[🚀 Terraform Infrastructure](terraform/README.md)** - Infrastructure as Code for GCP Cloud Run  
+- **[🐳 TF-DevOps Container](tf-devops/README.md)** - Containerized deployment toolkit
+
 ## Project Overview
 
 Next Fractals is an interactive Mandelbrot set generator built with Next.js 14, TypeScript, and Web Workers for performant fractal calculations. The application features real-time rendering, smooth zoom/pan controls, and customizable presets.
@@ -18,6 +24,15 @@ Next Fractals is an interactive Mandelbrot set generator built with Next.js 14, 
 
 ### Testing Individual Components
 Since there's no test framework configured, test features manually through the development server.
+
+### Deployment Commands
+- `./deploy.sh build` - Build tf-devops container for deployment
+- `./deploy.sh plan` - Show Terraform deployment plan  
+- `./deploy.sh apply` - Deploy infrastructure to GCP Cloud Run
+- `./deploy.sh destroy` - Destroy GCP infrastructure
+- `./deploy.sh deploy` - Full automated deployment (infrastructure + app)
+
+For detailed deployment instructions, see the [deployment documentation](terraform/README.md).
 
 ## Architecture
 

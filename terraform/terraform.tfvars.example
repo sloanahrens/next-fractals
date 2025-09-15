@@ -1,0 +1,49 @@
+# Example Terraform variables file
+# Copy this file to terraform.tfvars and update with your values
+
+# Required: Your GCP Project ID
+project_id = "your-gcp-project-id"
+
+# GCP region for deployment (default: us-central1)
+region = "us-central1"
+
+# Application name (default: next-fractals)
+app_name = "next-fractals"
+
+# Docker image URL (leave empty for initial deployment, Terraform will use a placeholder)
+# After building and pushing your image, update this value
+docker_image = ""
+
+# Resource limits
+cpu_limit    = "1"      # 1 vCPU
+memory_limit = "512Mi"  # 512 MB RAM
+
+# Auto-scaling configuration
+min_instances   = 0    # Scale to zero when not in use (cost-effective)
+max_instances   = 10   # Maximum instances during high traffic
+max_concurrency = 80   # Requests per container instance
+
+# Security settings
+allow_unauthenticated = true  # Set to false to require authentication
+ingress_type         = "all"  # Allow traffic from internet
+
+# Performance optimization
+cpu_throttling     = true  # Allocate CPU only during requests (saves costs)
+startup_cpu_boost  = true  # Faster cold starts
+
+# Optional: Environment variables for your application
+env_vars = {
+  # NODE_ENV = "production"
+  # NEXT_PUBLIC_API_URL = "https://api.example.com"
+}
+
+# Optional: Custom domain (requires domain verification in GCP)
+custom_domain = ""  # e.g., "fractals.yourdomain.com"
+
+# Optional: CI/CD with Cloud Build (requires GitHub connection)
+enable_cicd  = false
+github_owner = ""  # Your GitHub username or org
+github_repo  = "next-fractals"
+
+# Optional: Service account (leave empty to use default)
+service_account_email = ""

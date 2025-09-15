@@ -5,19 +5,27 @@ This directory contains Terraform configuration for deploying the [Next Fractals
 ## 📚 Related Documentation
 
 - **[⬅️ Back to Main Project](../README.md)** - Next Fractals overview and features
+- **[🆕 GCP Account Setup](../docs/GCP_SETUP.md)** - New to Google Cloud? Start here!
 - **[🐳 TF-DevOps Container](../tf-devops/README.md)** - Containerized deployment toolkit (recommended)
 - **[🛠️ Developer Guide](../CLAUDE.md)** - Development setup and architecture
 
 ## Prerequisites
 
-1. **Google Cloud Project**: Create a GCP project and note the project ID
-2. **Google Cloud CLI**: Install and authenticate `gcloud` CLI
-3. **Terraform**: Install Terraform (version 1.0+)
-4. **Docker**: Install Docker for building container images
-5. **APIs**: Enable required APIs (Terraform will attempt to enable them automatically):
-   - Cloud Run API
-   - Artifact Registry API
-   - Cloud Build API (if using CI/CD)
+> **🆕 New to Google Cloud?** Follow our [GCP Account Setup Guide](../docs/GCP_SETUP.md) for complete instructions.
+
+**Required:**
+1. **Google Cloud Project** with billing enabled
+2. **Project ID** (note this down!)
+3. **Authentication** set up (interactive login or service account)
+
+**Automatically handled by TF-DevOps:**
+- Google Cloud CLI 
+- Terraform (version 1.7+)
+- Docker CLI
+- Required API enablement:
+  - Cloud Run API
+  - Artifact Registry API  
+  - Cloud Build API (if using CI/CD)
 
 ## Quick Start
 

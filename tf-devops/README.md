@@ -5,6 +5,7 @@ A lightweight Alpine-based Docker container that includes all tools needed to de
 ## 📚 Related Documentation
 
 - **[⬅️ Back to Main Project](../README.md)** - Next Fractals overview and quick deployment
+- **[🆕 GCP Account Setup](../docs/GCP_SETUP.md)** - New to Google Cloud? Start here!
 - **[📋 Terraform Configuration](../terraform/README.md)** - Infrastructure as Code details
 - **[🛠️ Developer Guide](../CLAUDE.md)** - Development setup and architecture
 

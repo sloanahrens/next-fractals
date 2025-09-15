@@ -149,6 +149,7 @@ export GCP_PROJECT="your-project-id"
 ```
 
 **📚 Deployment Documentation:**
+- **[🆕 GCP Account Setup](docs/GCP_SETUP.md)** - New to Google Cloud? Start here!
 - **[Terraform Infrastructure](terraform/README.md)** - Infrastructure as Code for GCP Cloud Run
 - **[TF-DevOps Container](tf-devops/README.md)** - Containerized deployment toolkit
 - **[Developer Guide](CLAUDE.md)** - Development setup and architecture overview

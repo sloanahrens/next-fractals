@@ -134,8 +134,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern web technologies for optimal performance
 - Designed for both mathematical exploration and visual enjoyment
 
+## Deployment
+
+### 🚀 Quick Deploy to GCP Cloud Run
+
+Deploy Next Fractals to Google Cloud Platform using our containerized deployment system:
+
+```bash
+# Quick setup
+export GCP_PROJECT="your-project-id"
+./deploy.sh build
+./deploy.sh auth
+./deploy.sh deploy
+```
+
+**📚 Deployment Documentation:**
+- **[Terraform Infrastructure](terraform/README.md)** - Infrastructure as Code for GCP Cloud Run
+- **[TF-DevOps Container](tf-devops/README.md)** - Containerized deployment toolkit
+- **[Developer Guide](CLAUDE.md)** - Development setup and architecture overview
+
+### Alternative Deployments
+
+- **Vercel**: Deploy directly from GitHub with zero configuration
+- **Netlify**: Static export with `npm run build && npm run export`
+- **Docker**: Use the included `Dockerfile` for any container platform
+
 ---
 
 **Explore the infinite complexity of mathematics through interactive visualization.**
 
-Visit the live application here: [Next Fractals](https://nextjs-fractals.netlify.app/)
+🌐 **Live Demo**: [Next Fractals](https://nextjs-fractals.netlify.app/)  
+🏗️ **Deploy Your Own**: See [deployment guides](terraform/README.md) above

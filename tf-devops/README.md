@@ -1,6 +1,14 @@
 # TF-DevOps: Terraform Deployment Container
 
-A lightweight Alpine-based Docker container that includes all tools needed to deploy the Next Fractals application to GCP Cloud Run. This container is independent of the application and runs with your code mounted as a volume.
+A lightweight Alpine-based Docker container that includes all tools needed to deploy the [Next Fractals](../README.md) application to GCP Cloud Run. This container is independent of the application and runs with your code mounted as a volume.
+
+## 📚 Related Documentation
+
+- **[⬅️ Back to Main Project](../README.md)** - Next Fractals overview and quick deployment
+- **[📋 Terraform Configuration](../terraform/README.md)** - Infrastructure as Code details
+- **[🛠️ Developer Guide](../CLAUDE.md)** - Development setup and architecture
+
+> **💡 Quick Start**: From the project root, run `./deploy.sh build && ./deploy.sh deploy`
 
 ## Features
 
@@ -152,11 +160,12 @@ The container automatically mounts `~/.config/gcloud` to use existing authentica
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/next-fractals.git
+git clone https://github.com/sloanahrens/next-fractals.git
 cd next-fractals
 
 # 2. Build the tf-devops container
-./tf-devops/tf-devops.sh build
+./deploy.sh build
+# OR: ./tf-devops/tf-devops.sh build
 
 # 3. Configure variables
 cd terraform
@@ -168,38 +177,40 @@ export GCP_PROJECT="your-project-id"
 export GCP_REGION="us-central1"
 
 # 5. Authenticate
-../tf-devops/tf-devops.sh auth
+../deploy.sh auth
+# OR: ../tf-devops/tf-devops.sh auth
 ```
 
 ### Deploy Application
 
 ```bash
 # Option 1: Automated full deployment
-../tf-devops/tf-devops.sh deploy
+../deploy.sh deploy
+# OR: ../tf-devops/tf-devops.sh deploy
 
 # Option 2: Step-by-step deployment
 # a. Create infrastructure
-../tf-devops/tf-devops.sh apply
+../deploy.sh apply
 
 # b. Build and push Docker image
-../tf-devops/tf-devops.sh docker-build
+../deploy.sh docker-build
 
 # c. Update Cloud Run with new image
-../tf-devops/tf-devops.sh apply -var="docker_image=$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/next-fractals-docker/next-fractals:latest"
+../deploy.sh apply -var="docker_image=$GCP_REGION-docker.pkg.dev/$GCP_PROJECT/next-fractals-docker/next-fractals:latest"
 ```
 
 ### Update Application
 
 ```bash
 # After making code changes
-../tf-devops/tf-devops.sh docker-build
-../tf-devops/tf-devops.sh apply -auto-approve
+../deploy.sh docker-build
+../deploy.sh apply -auto-approve
 ```
 
 ### Destroy Infrastructure
 
 ```bash
-../tf-devops/tf-devops.sh destroy
+../deploy.sh destroy
 ```
 
 ## CI/CD Integration

@@ -1,6 +1,12 @@
 # Terraform Deployment for Next Fractals on GCP Cloud Run
 
-This directory contains Terraform configuration for deploying the Next Fractals application to Google Cloud Run.
+This directory contains Terraform configuration for deploying the [Next Fractals](../README.md) application to Google Cloud Run.
+
+## 📚 Related Documentation
+
+- **[⬅️ Back to Main Project](../README.md)** - Next Fractals overview and features
+- **[🐳 TF-DevOps Container](../tf-devops/README.md)** - Containerized deployment toolkit (recommended)
+- **[🛠️ Developer Guide](../CLAUDE.md)** - Development setup and architecture
 
 ## Prerequisites
 
@@ -15,50 +21,60 @@ This directory contains Terraform configuration for deploying the Next Fractals 
 
 ## Quick Start
 
-### 1. Initialize Terraform
+> **💡 Recommended**: Use the [TF-DevOps container](../tf-devops/README.md) for simplified deployment with all tools pre-installed.
+
+### Option 1: Using TF-DevOps Container (Recommended)
+
+```bash
+# From project root
+export GCP_PROJECT="your-project-id"
+./deploy.sh build
+./deploy.sh auth
+./deploy.sh deploy
+```
+
+See the [TF-DevOps documentation](../tf-devops/README.md) for detailed instructions.
+
+### Option 2: Manual Terraform Deployment
+
+If you prefer to run Terraform directly:
+
+#### 1. Initialize Terraform
 
 ```bash
 cd terraform
 terraform init
 ```
 
-### 2. Configure Variables
-
-Copy the example variables file and update with your values:
+#### 2. Configure Variables
 
 ```bash
 cp terraform.tfvars.example terraform.tfvars
 # Edit terraform.tfvars with your project ID and preferences
 ```
 
-### 3. Build and Push Docker Image
+#### 3. Build and Push Docker Image
 
 ```bash
-# From the project root (not terraform directory)
+# From the project root
 cd ..
 
-# Configure Docker authentication for Artifact Registry
+# Configure Docker authentication
 gcloud auth configure-docker us-central1-docker.pkg.dev
 
-# Build the Docker image
+# Build and push image
 docker build -t us-central1-docker.pkg.dev/YOUR_PROJECT_ID/next-fractals-docker/next-fractals:latest .
-
-# Push to Artifact Registry (after Terraform creates the repository)
 docker push us-central1-docker.pkg.dev/YOUR_PROJECT_ID/next-fractals-docker/next-fractals:latest
 ```
 
-### 4. Deploy Infrastructure
+#### 4. Deploy Infrastructure
 
 ```bash
 cd terraform
-
-# Review the deployment plan
 terraform plan
-
-# Apply the configuration
 terraform apply
 
-# After Docker image is pushed, update the deployment
+# Update with Docker image
 terraform apply -var="docker_image=us-central1-docker.pkg.dev/YOUR_PROJECT_ID/next-fractals-docker/next-fractals:latest"
 ```
 

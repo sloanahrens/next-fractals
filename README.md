@@ -164,5 +164,5 @@ export GCP_PROJECT="your-project-id"
 
 **Explore the infinite complexity of mathematics through interactive visualization.**
 
-🌐 **Live Demo**: [Next Fractals](https://nextjs-fractals.netlify.app/)  
-🏗️ **Deploy Your Own**: See [deployment guides](terraform/README.md) above
+🌐 **Live on Netlify**: [Next Fractals](https://nextjs-fractals.netlify.app/)  
+🚀 **Deploy to GCP**: See [deployment guides](terraform/README.md) above

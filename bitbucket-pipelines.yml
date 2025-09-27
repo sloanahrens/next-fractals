@@ -1,3 +1,18 @@
+# Bitbucket Pipeline for Next Fractals
+# Deploys all branches after tests pass
+# Required repository variables:
+#   - GCP_SERVICE_ACCOUNT_KEY: Base64-encoded service account JSON key
+#   - GCP_PROJECT: Your GCP project ID
+#   - GCP_REGION: GCP region (e.g., us-central1)
+#   - DEVOPS_GIT_KEY: Base64-encoded SSH private key for devops-cloud-run repo
+#   - DEVOPS_REPO_URL: SSH URL for devops-cloud-run repository (optional, has default)
+#   - DEVOPS_ACCESS_TOKEN: Personal access token for HTTPS fallback (optional)
+#
+# Infrastructure Notes:
+#   - Shared Artifact Registry repository: 'shared-apps-docker' (created by bootstrap)
+#   - Branch-specific Cloud Run services: '{APP_NAME}-{branch-name}'
+#   - APP_NAME environment variable must be customized for each application
+
 image: atlassian/default-image:4
 
 definitions:

@@ -1,18 +1,3 @@
-# Bitbucket Pipeline for Next Fractals
-# Deploys all branches after tests pass
-# Required repository variables:
-#   - GCP_SERVICE_ACCOUNT_KEY: Base64-encoded service account JSON key
-#   - GCP_PROJECT: Your GCP project ID
-#   - GCP_REGION: GCP region (e.g., us-central1)
-#   - DEVOPS_GIT_KEY: Base64-encoded SSH private key for devops-cloud-run repo
-#   - DEVOPS_REPO_URL: SSH URL for devops-cloud-run repository (optional, has default)
-#   - DEVOPS_ACCESS_TOKEN: Personal access token for HTTPS fallback (optional)
-#
-# Infrastructure Notes:
-#   - Shared Artifact Registry repository: 'shared-apps-docker' (created by bootstrap)
-#   - Branch-specific Cloud Run services: '{APP_NAME}-{branch-name}'
-#   - APP_NAME environment variable must be customized for each application
-
 image: atlassian/default-image:4
 
 definitions:
@@ -21,49 +6,38 @@ definitions:
 
 pipelines:
   default:
-    - parallel:
-        - step:
-            name: Build and Test Next.js App
-            image: node:20-alpine
-            caches:
-              - node
-            script:
-              - npm ci
-              - npm run build
-              - npm run lint
-              - npx tsc --noEmit
+    - step:
+        name: Deploy to Cloud Run
+        services:
+          - docker
+        script:
+          # Set required environment variables
+          - export APP_NAME=fractals-nextjs
+          - export APP_BRANCH=${BITBUCKET_BRANCH}
+          - export APP_CODE_PATH=${BITBUCKET_CLONE_DIR}
 
-        - step:
-            name: Deploy to Cloud Run
-            services:
-              - docker
-            script:
-              # Set required environment variables
-              - export APP_NAME=fractals-nextjs
-              - export CODE_BASE_ROOT=${BITBUCKET_CLONE_DIR}
+          # Clone devops repository
+          - cd application
+          - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
+          - cd devops-cloud/run/devops-cloud-run
+          - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${APP_BRANCH})
+          - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"
 
-              # Clone application repository into application/$APP_NAME directory
-              - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
-              - cd devops-cloud-run/devops-cloud-run
+          # Validate bootstrap infrastructure is ready
+          - echo "Validating bootstrap infrastructure..."
+          - cd bootstrap
+          - ./validate-bootstrap.sh
 
-              - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${BITBUCKET_BRANCH})
-              - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"
+          # Build devops container (required for deployment)
+          - echo "Building DevOps container for deployment..."
+          - cd ../docker
+          - ./build-devops-image.sh
 
-              # Validate bootstrap infrastructure is ready
-              - echo "Validating bootstrap infrastructure..."
-              - cd bootstrap
-              - ./validate-bootstrap.sh
+          # Build and push application container to Artifact Registry
+          - echo "Building and pushing application container..."
+          - cd ../cloud-run
+          - ./cloud-run.sh build-push-app-image main
 
-              # Build devops container (required for deployment)
-              - echo "Building DevOps container for deployment..."
-              - cd ../docker
-              - ./build-devops-image.sh
-
-              # Build and push application container to Artifact Registry
-              - echo "Building and pushing application container..."
-              - cd ../cloud-run
-              - ./cloud-run.sh build-push-app-image main
-
-              # Deploy application with normalized tag
-              - echo "Deploying application to Cloud Run with ${APP_NAME} and ${BITBUCKET_BRANCH}..."
-              - ./cloud-run.sh apply ${BITBUCKET_BRANCH}
+          # Deploy application with normalized tag
+          - echo "Deploying application to Cloud Run with ${APP_NAME} and ${APP_BRANCH}..."
+          - ./cloud-run.sh apply ${APP_BRANCH}

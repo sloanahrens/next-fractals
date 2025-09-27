@@ -54,3 +54,27 @@ pipelines:
               # Deploy application with normalized tag
               - echo "Deploying application to Cloud Run with ${APP_NAME} and ${NORMALIZED_TAG}..."
               - ./cloud-run.sh apply ${NORMALIZED_TAG}
+
+              # Test that the deployment is working
+              - echo "Testing deployment health..."
+              - |
+                export SERVICE_URL=$(docker run --rm \
+                    -v $(pwd):/workspace \
+                    -w /workspace \
+                    -e GCP_SERVICE_ACCOUNT_KEY="$GCP_SERVICE_ACCOUNT_KEY" \
+                    devops:latest \
+                    terraform output -raw service_url 2>/dev/null | tail -n1)
+                echo "Service URL: $SERVICE_URL"
+
+                # Test with retries (up to 30 seconds)
+                for i in {1..6}; do
+                  echo "Attempt $i: Testing $SERVICE_URL..."
+                  if docker run --rm -e GCP_SERVICE_ACCOUNT_KEY devops:latest curl -f -s -o /dev/null -w "%{http_code}\n" "$SERVICE_URL" | grep -q "200"; then
+                    echo "✅ Health check passed! Service is running."
+                    exit 0
+                  fi
+                  echo "Waiting 5 seconds before retry..."
+                  sleep 5
+                done
+                echo "❌ Health check failed after 30 seconds"
+                exit 1

@@ -43,8 +43,8 @@ pipelines:
               - export CODE_BASE_ROOT=${BITBUCKET_CLONE_DIR}
 
               # Clone application repository into application/$APP_NAME directory
-              - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
-              - cd devops-cloud-run/devops-cloud-run
+              - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git
+              - cd nextjs-tf-gcp-demo/devops-cloud-run
 
               - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${BITBUCKET_BRANCH})
               - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"

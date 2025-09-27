@@ -8,10 +8,6 @@ yarn-error.log*
 .next
 out
 
-# Testing
-coverage
-.nyc_output
-
 # IDE and editor files
 .vscode
 .idea
@@ -24,11 +20,6 @@ coverage
 .git
 .gitignore
 
-# Documentation
-README.md
-CLAUDE.md
-*.md
-
 # Docker
 Dockerfile
 .dockerignore
@@ -40,9 +31,5 @@ Dockerfile
 .env.test.local
 .env.production.local
 
-# Misc
+# ESLint cache
 .eslintcache
-.cache
-dist
-tmp
-temp

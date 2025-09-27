@@ -31,12 +31,11 @@ Next Fractals is a real-time fractal generator that allows users to explore the 
 - **TypeScript**: Full type safety and enhanced developer experience
 
 ### 🔧 DevOps & CI/CD Features
-- **Multi-Branch Deployment**: Automated branch-specific Cloud Run services with shared infrastructure
-- **Containerized Deployment**: Docker-based tf-devops toolchain with platform-specific builds
-- **Remote State Management**: Terraform state isolation per branch with GCS backend and KMS encryption
-- **Automated Resource Cleanup**: Scheduled cleanup of orphaned services
-- **Environment Validation**: Comprehensive pre-deployment checks and container validation
-- **Zero-Downtime Updates**: Placeholder image deployment followed by seamless service updates
+- **Bitbucket Pipelines**: Automated testing and deployment on every commit
+- **Containerized Deployment**: Docker-based deployment to GCP Cloud Run
+- **Multi-stage Builds**: Optimized Docker images for production
+- **ESLint Integration**: Code quality checks in CI/CD pipeline
+- **TypeScript Validation**: Compile-time type checking in build process
 
 ## Technology Stack
 
@@ -58,7 +57,7 @@ Next Fractals is a real-time fractal generator that allows users to explore the 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd nextjs-tf-gcp-demo
+cd fractals-nextjs
 ```
 
 2. Install dependencies:
@@ -72,6 +71,23 @@ npm run dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to start exploring!
+
+## Docker Commands
+
+For testing and deployment, you can use these Docker commands:
+
+```bash
+# Test CI/CD pipeline locally (runs build, lint, and type checking)
+docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm ci && npm run build && npm run lint && npx tsc --noEmit"
+
+# Build production Docker image
+docker build --platform linux/amd64 -t fractals-next:test -f Dockerfile .
+
+# Run production container locally
+docker run --rm -p 8080:8080 fractals-next:test
+```
+
+The production container will be available at [http://localhost:8080](http://localhost:8080).
 
 ## Usage
 
@@ -139,23 +155,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Deployment
 
-### 🚀 Quick Deploy to GCP Cloud Run
+### 🚀 Bitbucket Pipelines
 
-Deploy Next Fractals to Google Cloud Platform using our containerized deployment system:
+The project uses Bitbucket Pipelines for automated CI/CD. Every commit triggers:
 
-```bash
-# Quick setup using tf-devops
-export GCP_PROJECT="your-project-id"
-./deploy.sh setup-service-account  # One-time: Create service account
-./deploy.sh bootstrap              # One-time: Set up remote state
-./deploy.sh deploy                 # Deploy application
-```
+1. **Build and Test**: Runs `npm ci`, `npm run build`, `npm run lint`, and TypeScript compilation
+2. **Deploy to Cloud Run**: Automatically deploys to GCP Cloud Run (requires environment variables)
 
 ### 📚 Documentation
-
-**Setup and Deployment:**
-- **[Project Setup](docs/PROJECT_SETUP.md)** - Complete GCP and Bitbucket CI/CD setup guide
-- **[Project Deployment](docs/PROJECT_DEPLOYMENT.md)** - Deployment and management instructions
 
 **Development:**
 - **[Developer Guide](CLAUDE.md)** - Architecture overview and development setup
@@ -163,11 +170,11 @@ export GCP_PROJECT="your-project-id"
 ### Alternative Deployments
 
 - **Vercel**: Deploy directly from GitHub with zero configuration
-- **Netlify**: Static export with `npm run build && npm run export`
+- **Netlify**: Static export with `npm run build`
 - **Docker**: Use the included `Dockerfile` for any container platform
 
 ---
 
 **Explore the infinite complexity of mathematics through interactive visualization.**
 
-🚀 **Deploy to GCP**: See [deployment guides](#-quick-deploy-to-gcp-cloud-run) above
+🚀 **Deploy to GCP**: See [deployment section](#-bitbucket-pipelines) above

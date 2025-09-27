@@ -244,6 +244,12 @@ export default function Home() {
                 </p>
               </div>
             )}
+
+            <div className="mt-4 text-center">
+              <p className="text-xs text-gray-500">
+                <strong>Take a screenshot:</strong> macOS: Cmd+Shift+4 • Windows: Win+Shift+S • Linux: Print Screen
+              </p>
+            </div>
           </div>
 
           {/* Parameter Control Panel */}

@@ -77,14 +77,12 @@ npm run dev
 For testing and deployment, you can use these Docker commands:
 
 ```bash
-# Test CI/CD pipeline locally (runs build, lint, and type checking)
+# Docker commands for testing CI/CD locally
 docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm ci && npm run build && npm run lint && npx tsc --noEmit"
 
-# Build production Docker image
-docker build --platform linux/amd64 -t fractals-next:test -f Dockerfile .
-
-# Run production container locally
-docker run --rm -p 8080:8080 fractals-next:test
+# Build and test production Docker image
+docker build --platform linux/amd64 -t fractals-nextjs:test -f Dockerfile .
+docker run --rm -p 8080:8080 fractals-nextjs:test
 ```
 
 The production container will be available at [http://localhost:8080](http://localhost:8080).

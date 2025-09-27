@@ -5,11 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Development Commands
 
 ```bash
-# Development server
+# Development server (runs on http://localhost:3000)
 npm run dev
 
 # Production build
 npm run build
+
+# Start production server
+npm start
 
 # Linting and code quality
 npm run lint
@@ -17,6 +20,13 @@ npm run format
 
 # TypeScript compilation check
 npx tsc --noEmit
+
+# Docker commands for testing CI/CD locally
+docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm ci && npm run build && npm run lint && npx tsc --noEmit"
+
+# Build and test production Docker image
+docker build --platform linux/amd64 -t fractals-nextjs:test -f Dockerfile .
+docker run --rm -p 8080:8080 fractals-nextjs:test
 ```
 
 ## Project Architecture
@@ -51,9 +61,12 @@ The main page (`src/app/page.tsx`) uses React hooks for:
 
 The application uses Next.js with these key settings:
 - `output: 'standalone'` for Docker deployment
+- `poweredByHeader: false` for security
+- `reactStrictMode: true` for development checks
+- `swcMinify: true` for production optimization
 - TypeScript with strict mode enabled
 - Path aliases configured (`@/*` maps to `./src/*`)
-- Tailwind CSS for styling
+- Tailwind CSS with custom HSL color variables for theming
 
 ## Testing and Quality
 
@@ -73,7 +86,10 @@ npx tsc --noEmit
 - Runs on port 8080 with non-root user for security
 
 ### CI/CD Pipeline
-Bitbucket Pipelines configuration builds and tests on every commit:
-- Node.js 20 Alpine image
-- Parallel build, lint, and type checking
-- No automated deployment (manual deployment via tf-devops toolchain)
+Bitbucket Pipelines configuration with parallel execution:
+1. **Build and Test Step**: Node.js 20 Alpine image runs `npm ci`, `npm run build`, `npm run lint`, and `npx tsc --noEmit`
+2. **Deploy Step**: Automated deployment to GCP Cloud Run using tf-devops toolchain
+   - Clones external devops repository: `nextjs-tf-gcp-demo`
+   - Normalizes branch names for image tagging
+   - Builds multi-stage Docker images and pushes to Artifact Registry
+   - Deploys to Cloud Run with branch-specific URLs

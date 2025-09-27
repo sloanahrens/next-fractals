@@ -31,10 +31,6 @@ pipelines:
               - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
               - cd devops-cloud-run/devops-cloud-run
 
-              # Normalize branch name for image tag
-              - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${BITBUCKET_BRANCH})
-              - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"
-
               # Build devops container (required for deployment)
               - echo "Building DevOps container for deployment..."
               - cd docker
@@ -44,6 +40,10 @@ pipelines:
               - echo "Validating bootstrap infrastructure..."
               - cd ../bootstrap
               - ./validate-bootstrap.sh
+
+              # Normalize branch name for image tag
+              - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${BITBUCKET_BRANCH})
+              - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"
 
               # Build and push application container to Artifact Registry
               - echo "Building and pushing application container..."

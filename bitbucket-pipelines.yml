@@ -48,7 +48,7 @@ pipelines:
 
               # Build and push application container to Artifact Registry
               - echo "Building and pushing application container..."
-              - cd ../cloud-run
+              - cd cloud-run
               - ./cloud-run.sh build-push-app-image ${NORMALIZED_TAG}
 
               # Deploy application with normalized tag

@@ -18,7 +18,7 @@ pipelines:
 
           # Clone devops repository
           - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
-          - cd devops-cloud/run/devops-cloud-run
+          - cd devops-cloud-run/devops-cloud-run
           - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${APP_BRANCH})
           - echo "NORMALIZED_TAG is ${NORMALIZED_TAG}"
 

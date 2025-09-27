@@ -54,5 +54,3 @@ pipelines:
               # Deploy application with normalized tag
               - echo "Deploying application to Cloud Run with ${APP_NAME} and ${NORMALIZED_TAG}..."
               - ./cloud-run.sh apply ${NORMALIZED_TAG}
-
-

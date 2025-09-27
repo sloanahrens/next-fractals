@@ -25,8 +25,52 @@ pipelines:
         - step:
             name: Build and Test Next.js App
             image: node:20-alpine
+            caches:
+              - node
             script:
               - npm ci
               - npm run build
               - npm run lint
               - npx tsc --noEmit
+
+    - step:
+        name: Deploy to Cloud Run
+        services:
+          - docker
+        script:
+          # Set required environment variables
+          - export APP_NAME=fractals-nextjs
+
+          # Clone devops repository
+          - git clone git@bitbucket.org:sloanahrens/devops-cloud-run.git
+
+          # Build and push application container to Artifact Registry
+          - echo "Building and pushing application container..."
+          - |
+            export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh "${BITBUCKET_BRANCH:-master}")
+            echo "Using normalized tag: $NORMALIZED_TAG"
+          - cd cloud-run
+          - ./cloud-run.sh build-push-app-image "$NORMALIZED_TAG"
+          - cd ..
+
+          # Build devops container (required for deployment)
+          - echo "Building DevOps container for deployment..."
+          - cd docker
+          - ./build-devops-image.sh
+          - cd ..
+
+          # Validate bootstrap infrastructure is ready
+          - echo "Validating bootstrap infrastructure..."
+          - cd bootstrap
+          - ./validate-bootstrap.sh
+          - cd ..
+
+          # Deploy application with normalized tag
+          - echo "Deploying application to Cloud Run..."
+          - |
+            export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh "${BITBUCKET_BRANCH:-master}")
+            echo "Deploying with normalized tag: $NORMALIZED_TAG"
+          - cd cloud-run
+          - ./cloud-run.sh apply "$NORMALIZED_TAG"
+          - cd ..
+

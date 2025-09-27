@@ -90,6 +90,8 @@ Bitbucket Pipelines configuration with parallel execution:
 1. **Build and Test Step**: Node.js 20 Alpine image runs `npm ci`, `npm run build`, `npm run lint`, and `npx tsc --noEmit`
 2. **Deploy Step**: Automated deployment to GCP Cloud Run using tf-devops toolchain
    - Clones external devops repository: `nextjs-tf-gcp-demo`
+   - Builds DevOps container and validates bootstrap infrastructure
    - Normalizes branch names for image tagging
    - Builds multi-stage Docker images and pushes to Artifact Registry
    - Deploys to Cloud Run with branch-specific URLs
+   - **Health Check**: Automatically tests deployment with retries (up to 30 seconds) to verify the service is responding with HTTP 200

@@ -37,12 +37,12 @@ pipelines:
 
               # Build devops container (required for deployment)
               - echo "Building DevOps container for deployment..."
-              - cd ../docker
+              - cd docker
               - ./build-devops-image.sh
 
               # Validate bootstrap infrastructure is ready
               - echo "Validating bootstrap infrastructure..."
-              - cd bootstrap
+              - cd ../bootstrap
               - ./validate-bootstrap.sh
 
               # Build and push application container to Artifact Registry

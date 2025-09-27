@@ -40,6 +40,7 @@ pipelines:
               - echo "Validating bootstrap infrastructure..."
               - cd ../bootstrap
               - ./validate-bootstrap.sh
+              - cd ..
 
               # Normalize branch name for image tag
               - export NORMALIZED_TAG=$(scripts/normalize-branch-tag.sh ${BITBUCKET_BRANCH})

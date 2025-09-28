@@ -4,7 +4,11 @@ A modern, interactive web application for exploring the infinite beauty of the M
 
 ![Next Fractals Preview](public/fractal-preview.png)
 
-**[🌐 Link to app deployed on GCP Cloud Run](https://next-fractals-master-712237068132.us-central1.run.app)**
+**App (main branch) deployed on GCP Cloud Run:**
+- **[🌐 https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/](https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/)**
+
+**App is continuously deployed via CI/CD using this repo:**
+- **[🌐 https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo](https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo)**
 
 ## Overview
 
@@ -77,12 +81,14 @@ npm run dev
 For testing and deployment, you can use these Docker commands:
 
 ```bash
-# Docker commands for testing CI/CD locally
+# Test CI/CD pipeline locally (runs build, lint, and type checking)
 docker run --rm -v $(pwd):/app -w /app node:20-alpine sh -c "npm ci && npm run build && npm run lint && npx tsc --noEmit"
 
-# Build and test production Docker image
-docker build --platform linux/amd64 -t fractals-nextjs:test -f Dockerfile .
-docker run --rm -p 8080:8080 fractals-nextjs:test
+# Build production Docker image
+docker build --platform linux/amd64 -t fractals-next:test -f Dockerfile .
+
+# Run production container locally
+docker run --rm -p 8080:8080 fractals-next:test
 ```
 
 The production container will be available at [http://localhost:8080](http://localhost:8080).

@@ -4,7 +4,11 @@ A modern, interactive web application for exploring the infinite beauty of the M
 
 ![Next Fractals Preview](public/fractal-preview.png)
 
-**[🌐 Link to app deployed on GCP Cloud Run](https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/)**
+**App (main branch) deployed on GCP Cloud Run:**
+- **[🌐 https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/](https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/)**
+
+**App is continuously deployed via CI/CD using this repo:**
+- **[🌐 https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo](https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo)**
 
 ## Overview
 

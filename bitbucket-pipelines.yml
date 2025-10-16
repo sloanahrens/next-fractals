@@ -198,7 +198,7 @@ pipelines:
 
             # Clone infrastructure repo
             - echo "Cloning infrastructure repo..."
-            - git clone git@bitbucket.org:sloanahrens/nextjs-tf-gcp-demo.git devops-cloud-run
+            - git clone git@bitbucket.org:sloanahrens/devops-cloud-run.git devops-cloud-run
             - cd devops-cloud-run/devops-cloud-run
 
             # Pull devops container

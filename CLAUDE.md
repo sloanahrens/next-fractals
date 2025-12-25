@@ -81,17 +81,55 @@ npx tsc --noEmit
 ## Deployment
 
 ### Docker Configuration
-- Multi-stage Dockerfile optimized for GCP Cloud Run
+- Multi-stage Dockerfile optimized for container deployment
 - Standalone Next.js output for minimal container size
 - Runs on port 8080 with non-root user for security
+- Health endpoint at `/health` for container orchestration probes
 
-### CI/CD Pipeline
-Bitbucket Pipelines configuration with parallel execution:
+### CI/CD Pipelines
+
+This app supports two deployment targets with independent CI/CD pipelines.
+
+#### Azure Container Apps (GitHub Actions)
+
+GitHub Actions workflows in `.github/workflows/`:
+
+**deploy.yml** - Triggered on push to any branch:
+1. Tests the app (build, lint, typecheck)
+2. Clones `devops-azure-container-apps` repository
+3. Azure OIDC login + Pulumi login to blob storage
+4. Builds Docker image and pushes to Azure Container Registry
+5. Deploys Container App via Pulumi (`devops/app`)
+6. Health checks `/health` endpoint
+
+**cleanup.yml** - Triggered on branch deletion:
+1. Clones `devops-azure-container-apps` repository
+2. Destroys Container App stack via Pulumi
+
+**GitHub Secrets Required:**
+| Secret | Source |
+|--------|--------|
+| `AZURE_CLIENT_ID` | Infrastructure stack output |
+| `AZURE_TENANT_ID` | Azure Portal |
+| `AZURE_SUBSCRIPTION_ID` | Azure Portal |
+| `AZURE_STORAGE_ACCOUNT` | Bootstrap stack output |
+| `PULUMI_CONFIG_PASSPHRASE` | Your passphrase |
+| `DEVOPS_REPO_TOKEN` | GitHub PAT with repo access |
+
+**GitHub Variables Required:**
+| Variable | Value |
+|----------|-------|
+| `PULUMI_ORG` | Your Pulumi org name |
+| `DEVOPS_REPO` | `<owner>/devops-azure-container-apps` |
+
+#### GCP Cloud Run (Bitbucket Pipelines)
+
+Bitbucket Pipelines configuration in `bitbucket-pipelines.yml`:
 1. **Build and Test Step**: Node.js 20 Alpine image runs `npm ci`, `npm run build`, `npm run lint`, and `npx tsc --noEmit`
-2. **Deploy Step**: Automated deployment to GCP Cloud Run using tf-devops toolchain
-   - Clones external devops repository: `nextjs-tf-gcp-demo`
+2. **Deploy Step**: Automated deployment to GCP Cloud Run using devops-cloud-run toolchain
+   - Clones external devops repository
    - Builds DevOps container and validates bootstrap infrastructure
    - Normalizes branch names for image tagging
    - Builds multi-stage Docker images and pushes to Artifact Registry
    - Deploys to Cloud Run with branch-specific URLs
-   - **Health Check**: Automatically tests deployment with retries (up to 30 seconds) to verify the service is responding with HTTP 200
+   - Health check with retries (up to 30 seconds)

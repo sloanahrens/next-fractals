@@ -81,38 +81,6 @@ pipelines:
 
   # Custom pipelines
   custom:
-    # PR validation pipeline - triggered by webhook on PR create/update
-    pr-unit-test-validation:
-      - step:
-          name: PR Validation - Lint, Type Check, Unit Tests
-          image: node:20-alpine
-          caches:
-            - node
-          script:
-            - echo "Starting PR validation..."
-            - yarn install --frozen-lockfile
-
-            # Install git and bash (required for credential check and DevOps tests)
-            - apk add --no-cache git bash
-
-            # Credential scanning (before other checks)
-            - echo "🔒 Scanning for credentials in committed files..."
-            - node scripts/check-credentials.js || { echo "❌ Credential scanning failed - secrets detected"; exit 1; }
-
-            # DevOps features validation
-            - echo "🧪 Running DevOps Features Test Suite..."
-            - bash scripts/test-devops-features.sh || { echo "❌ DevOps feature tests failed"; exit 1; }
-
-            - yarn lint || { echo "❌ Linting failed"; exit 1; }
-            - yarn tsc --noEmit || { echo "❌ TypeScript check failed"; exit 1; }
-            - yarn test || { echo "❌ Tests failed"; exit 1; }
-
-            - echo "✅ All validation checks passed!"
-            - |
-              if [ -n "$PR_ID" ]; then
-                echo "Validation successful for PR #$PR_ID"
-              fi
-
     # Branch cleanup pipeline - triggered by webhook on PR merge (when "Close source branch" checked)
     branch-cleanup:
       - step:

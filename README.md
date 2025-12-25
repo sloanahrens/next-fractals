@@ -4,11 +4,9 @@ A modern, interactive web application for exploring the infinite beauty of the M
 
 ![Next Fractals Preview](public/fractal-preview.png)
 
-**App (main branch) deployed on GCP Cloud Run:**
-- **[🌐 https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/](https://fractals-nextjs-main-u7kvobazsa-uc.a.run.app/)**
-
-**App is continuously deployed via CI/CD using this repo:**
-- **[🌐 https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo](https://bitbucket.org/sloanahrens/nextjs-tf-gcp-demo)**
+**Deployment Targets:**
+- **Azure Container Apps** - GitHub Actions + Pulumi via `devops-azure-container-apps`
+- **GCP Cloud Run** - Bitbucket Pipelines + Terraform via `devops-cloud-run`
 
 ## Overview
 
@@ -35,11 +33,12 @@ Next Fractals is a real-time fractal generator that allows users to explore the 
 - **TypeScript**: Full type safety and enhanced developer experience
 
 ### 🔧 DevOps & CI/CD Features
-- **Bitbucket Pipelines**: Automated testing and deployment on every commit
-- **Containerized Deployment**: Docker-based deployment to GCP Cloud Run
-- **Multi-stage Builds**: Optimized Docker images for production
-- **ESLint Integration**: Code quality checks in CI/CD pipeline
-- **TypeScript Validation**: Compile-time type checking in build process
+- **Multi-Cloud Deployment**: Azure Container Apps (GitHub Actions) and GCP Cloud Run (Bitbucket)
+- **Branch Isolation**: Each git branch gets its own deployment URL
+- **Auto-Cleanup**: Resources destroyed when branches are deleted
+- **Containerized Deployment**: Docker-based deployment with multi-stage builds
+- **Health Endpoints**: `/health` route for container orchestration probes
+- **ESLint + TypeScript**: Code quality and type checking in CI/CD pipeline
 
 ## Technology Stack
 
@@ -101,28 +100,27 @@ The production container will be available at [http://localhost:8080](http://loc
 - **Reset**: Use preset configurations to jump to interesting locations
 
 ### Advanced Features
-- **Custom Presets**: Create and save your own fractal configurations
+- **Custom Presets**: Create and save your own fractal configurations (stored in browser localStorage)
 - **Parameter Adjustment**: Fine-tune iterations and other settings
-- **Export**: Save your discoveries as images or configuration files
 
 ## Project Structure
 
 ```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx         # Root layout with meta tags
-│   ├── page.tsx           # Main fractal viewer page
-│   └── globals.css        # Global styles
-├── components/
-│   └── ui/                # Reusable UI components
-├── lib/                   # Core logic and utilities
-│   ├── mandelbrot.ts      # Mandelbrot set calculations
-│   ├── fractalRenderer.ts # Rendering engine
-│   ├── colorMapping.ts    # Color scheme utilities
-│   ├── presets.ts         # Preset configurations
-│   └── zoomPan.ts         # Interactive controls
-├── types/                 # TypeScript type definitions
-└── public/                # Static assets
+├── .github/workflows/      # GitHub Actions CI/CD
+│   ├── deploy.yml          # Build, push, deploy to Azure
+│   └── cleanup.yml         # Destroy on branch delete
+├── src/
+│   ├── app/                # Next.js App Router pages
+│   │   ├── layout.tsx      # Root layout with meta tags
+│   │   ├── page.tsx        # Main fractal viewer page
+│   │   ├── globals.css     # Global styles
+│   │   └── health/route.ts # Health check endpoint
+│   ├── components/ui/      # Reusable UI components
+│   ├── lib/                # Core logic and utilities
+│   └── types/              # TypeScript type definitions
+├── bitbucket-pipelines.yml # Bitbucket CI/CD for GCP
+├── Dockerfile              # Multi-stage container build
+└── public/                 # Static assets
 ```
 
 ## Mathematics Behind the Magic
@@ -159,26 +157,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Deployment
 
-### 🚀 Bitbucket Pipelines
+### Azure Container Apps (GitHub Actions)
 
-The project uses Bitbucket Pipelines for automated CI/CD. Every commit triggers:
+The project uses GitHub Actions for Azure deployment. Every push triggers:
 
 1. **Build and Test**: Runs `npm ci`, `npm run build`, `npm run lint`, and TypeScript compilation
-2. **Deploy to Cloud Run**: Automatically deploys to GCP Cloud Run (requires environment variables)
+2. **Deploy**: Clones `devops-azure-container-apps`, builds image, pushes to ACR, deploys via Pulumi
+3. **Cleanup**: Branch deletion triggers automatic resource destruction
 
-### 📚 Documentation
+See [CLAUDE.md](CLAUDE.md) for required GitHub secrets and variables.
 
-**Development:**
-- **[Developer Guide](CLAUDE.md)** - Architecture overview and development setup
+### GCP Cloud Run (Bitbucket Pipelines)
 
-### Alternative Deployments
+Alternative deployment via Bitbucket Pipelines to GCP Cloud Run using `devops-cloud-run` toolchain.
 
-- **Vercel**: Deploy directly from GitHub with zero configuration
-- **Netlify**: Static export with `npm run build`
-- **Docker**: Use the included `Dockerfile` for any container platform
+### Local Docker
+
+```bash
+# Build and run locally
+docker build -t fractals-nextjs .
+docker run -p 8080:8080 fractals-nextjs
+```
 
 ---
 
 **Explore the infinite complexity of mathematics through interactive visualization.**
-
-🚀 **Deploy to GCP**: See [deployment section](#-bitbucket-pipelines) above

@@ -1,3 +1,8 @@
+# Cloned devops repos (created during CI/CD pipeline)
+devops-cloud-run
+devops-azure-container-apps
+devops
+
 # Dependencies
 node_modules
 npm-debug.log*

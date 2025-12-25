@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { FractalRenderer } from '../lib/fractalRenderer';
-import { ZoomPanManager } from '../lib/zoomPan';
-import { getDefaultBounds } from '../lib/mandelbrot';
+import { calculateZoomBounds } from '../lib/mandelbrot';
 import { FractalConfig, FractalBounds, ColorScheme } from '../types/fractal';
 import { getAvailableColorSchemes } from '../lib/colorMapping';
 import { FractalPreset } from '../lib/presets';
@@ -19,77 +18,47 @@ import { CustomPresetManager } from '../components/ui/CustomPresetManager';
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<FractalRenderer | null>(null);
-  const zoomPanRef = useRef<ZoomPanManager | null>(null);
-  
-  const [bounds, setBounds] = useState<FractalBounds>(getDefaultBounds());
+
+  // Navigation state - sliders control these directly
+  const [centerX, setCenterX] = useState(-0.75); // Center of classic Mandelbrot view
+  const [centerY, setCenterY] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  // Derive bounds from navigation state
+  const bounds = useMemo<FractalBounds>(() => {
+    return calculateZoomBounds(centerX, centerY, zoomLevel);
+  }, [centerX, centerY, zoomLevel]);
+
   const [isRendering, setIsRendering] = useState(false);
   const [progress, setProgress] = useState(0);
-  
-  // Phase 4: Parameter controls
+
+  // Parameter controls
   const [maxIterations, setMaxIterations] = useState(100);
   const [colorScheme, setColorScheme] = useState<ColorScheme>('classic');
   const [canvasWidth, setCanvasWidth] = useState(800);
   const [canvasHeight, setCanvasHeight] = useState(600);
-  
-  // Phase 5: Preset system
+
+  // Preset system
   const [currentPreset, setCurrentPreset] = useState<string>('');
-  
+
   // Manual coordinate inputs
   const [manualMinReal, setManualMinReal] = useState(bounds.minReal.toString());
   const [manualMaxReal, setManualMaxReal] = useState(bounds.maxReal.toString());
   const [manualMinImaginary, setManualMinImaginary] = useState(bounds.minImaginary.toString());
   const [manualMaxImaginary, setManualMaxImaginary] = useState(bounds.maxImaginary.toString());
 
+  // Initialize canvas and renderer
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Initialize canvas size with dynamic values
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-
-    // Initialize renderer and zoom/pan manager
     rendererRef.current = new FractalRenderer(canvas);
-    zoomPanRef.current = new ZoomPanManager(canvasWidth, canvasHeight, bounds);
 
     // Initial render
     renderFractal();
-
-    // Set up event listeners
-    const handleWheel = (event: WheelEvent) => {
-      const newBounds = zoomPanRef.current?.handleWheel(event, bounds);
-      if (newBounds) {
-        setBounds(newBounds);
-      }
-    };
-
-    const handleMouseDown = (event: MouseEvent) => {
-      zoomPanRef.current?.handleMouseDown(event);
-    };
-
-    const handleMouseMove = (event: MouseEvent) => {
-      const newBounds = zoomPanRef.current?.handleMouseMove(event, bounds);
-      if (newBounds) {
-        setBounds(newBounds);
-      }
-    };
-
-    const handleMouseUp = () => {
-      zoomPanRef.current?.handleMouseUp();
-    };
-
-    canvas.addEventListener('wheel', handleWheel);
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      canvas.removeEventListener('wheel', handleWheel);
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [bounds]);
+  }, []);
 
   const renderFractal = async () => {
     if (!rendererRef.current || !canvasRef.current) return;
@@ -131,50 +100,62 @@ export default function Home() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    
-    if (zoomPanRef.current) {
-      zoomPanRef.current = new ZoomPanManager(canvasWidth, canvasHeight, bounds);
-    }
-    
+
     renderFractal();
   }, [canvasWidth, canvasHeight]);
 
   // Helper functions for manual coordinate input
   const applyManualCoordinates = () => {
-    const newBounds: FractalBounds = {
-      minReal: parseFloat(manualMinReal),
-      maxReal: parseFloat(manualMaxReal),
-      minImaginary: parseFloat(manualMinImaginary),
-      maxImaginary: parseFloat(manualMaxImaginary),
-    };
+    const minReal = parseFloat(manualMinReal);
+    const maxReal = parseFloat(manualMaxReal);
+    const minImaginary = parseFloat(manualMinImaginary);
+    const maxImaginary = parseFloat(manualMaxImaginary);
 
     // Validate bounds
     if (
-      !isNaN(newBounds.minReal) &&
-      !isNaN(newBounds.maxReal) &&
-      !isNaN(newBounds.minImaginary) &&
-      !isNaN(newBounds.maxImaginary) &&
-      newBounds.minReal < newBounds.maxReal &&
-      newBounds.minImaginary < newBounds.maxImaginary
+      !isNaN(minReal) &&
+      !isNaN(maxReal) &&
+      !isNaN(minImaginary) &&
+      !isNaN(maxImaginary) &&
+      minReal < maxReal &&
+      minImaginary < maxImaginary
     ) {
-      setBounds(newBounds);
+      // Calculate center and zoom from manual bounds
+      const newCenterX = (minReal + maxReal) / 2;
+      const newCenterY = (minImaginary + maxImaginary) / 2;
+      const width = maxReal - minReal;
+      const newZoom = 3.5 / width; // 3.5 is baseWidth in calculateZoomBounds
+
+      setCenterX(newCenterX);
+      setCenterY(newCenterY);
+      setZoomLevel(newZoom);
+      setCurrentPreset('');
     }
   };
 
   const resetToDefault = () => {
-    const defaultBounds = getDefaultBounds();
-    setBounds(defaultBounds);
+    setCenterX(-0.75);
+    setCenterY(0);
+    setZoomLevel(1);
     setMaxIterations(100);
     setColorScheme('classic');
     setCurrentPreset('');
   };
 
-  // Phase 5: Preset handlers
+  // Preset handlers
   const handlePresetSelect = (preset: FractalPreset) => {
-    setBounds(preset.bounds);
+    // Calculate center and zoom from preset bounds
+    const presetCenterX = (preset.bounds.minReal + preset.bounds.maxReal) / 2;
+    const presetCenterY = (preset.bounds.minImaginary + preset.bounds.maxImaginary) / 2;
+    const presetWidth = preset.bounds.maxReal - preset.bounds.minReal;
+    const presetZoom = 3.5 / presetWidth; // 3.5 is baseWidth in calculateZoomBounds
+
+    setCenterX(presetCenterX);
+    setCenterY(presetCenterY);
+    setZoomLevel(presetZoom);
     setMaxIterations(preset.maxIterations);
     setColorScheme(preset.colorScheme);
     setCanvasWidth(preset.canvasWidth);
@@ -182,16 +163,9 @@ export default function Home() {
     setCurrentPreset(preset.id);
   };
 
-  const handleCenterChange = (centerX: number, centerY: number) => {
-    const width = bounds.maxReal - bounds.minReal;
-    const height = bounds.maxImaginary - bounds.minImaginary;
-    const newBounds: FractalBounds = {
-      minReal: centerX - width / 2,
-      maxReal: centerX + width / 2,
-      minImaginary: centerY - height / 2,
-      maxImaginary: centerY + height / 2,
-    };
-    setBounds(newBounds);
+  const handleCenterChange = (newCenterX: number, newCenterY: number) => {
+    setCenterX(newCenterX);
+    setCenterY(newCenterY);
     setCurrentPreset(''); // Clear preset when manually adjusting
   };
 
@@ -218,7 +192,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">Mandelbrot Set Explorer</h1>
           <p className="text-lg text-gray-600">
-            Click and drag to pan, scroll to zoom
+            Use the sliders to navigate the fractal
           </p>
         </div>
 
@@ -227,7 +201,7 @@ export default function Home() {
           <div className="bg-white p-4 rounded-lg shadow-lg">
             <canvas
               ref={canvasRef}
-              className="border border-gray-300 cursor-grab active:cursor-grabbing"
+              className="border border-gray-300"
               style={{ maxWidth: '100%', height: 'auto' }}
             />
             
@@ -254,7 +228,7 @@ export default function Home() {
 
           {/* Parameter Control Panel */}
           <div className="w-full lg:w-96 space-y-6">
-            {/* Phase 5: Preset System */}
+            {/* Preset System */}
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="text-lg font-semibold mb-4">Presets</h3>
               <PresetSelector
@@ -264,9 +238,81 @@ export default function Home() {
               />
             </div>
 
-            {/* Phase 5: Zoom Display and Center Controls */}
+            {/* Navigation Sliders */}
             <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-lg font-semibold mb-4">View Controls</h3>
+              <h3 className="text-lg font-semibold mb-4">Navigation</h3>
+              <div className="space-y-4">
+                <Slider
+                  label="Center X (Real)"
+                  value={centerX}
+                  min={-2.5}
+                  max={1.5}
+                  step={0.01}
+                  onChange={(value) => {
+                    setCenterX(value);
+                    setCurrentPreset('');
+                  }}
+                  disabled={isRendering}
+                  formatValue={(v) => v.toFixed(3)}
+                />
+                <Slider
+                  label="Center Y (Imaginary)"
+                  value={centerY}
+                  min={-1.5}
+                  max={1.5}
+                  step={0.01}
+                  onChange={(value) => {
+                    setCenterY(value);
+                    setCurrentPreset('');
+                  }}
+                  disabled={isRendering}
+                  formatValue={(v) => v.toFixed(3)}
+                />
+                <Slider
+                  label="Zoom Level"
+                  value={zoomLevel}
+                  min={1}
+                  max={10000}
+                  step={1}
+                  onChange={(value) => {
+                    setZoomLevel(value);
+                    setCurrentPreset('');
+                  }}
+                  disabled={isRendering}
+                  formatValue={(v) => `${v.toFixed(0)}x`}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setZoomLevel(Math.max(1, zoomLevel / 2))}
+                    disabled={isRendering || zoomLevel <= 1}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Zoom Out
+                  </Button>
+                  <Button
+                    onClick={() => setZoomLevel(Math.min(10000, zoomLevel * 2))}
+                    disabled={isRendering || zoomLevel >= 10000}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Zoom In
+                  </Button>
+                  <Button
+                    onClick={resetToDefault}
+                    disabled={isRendering}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Reset View
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* View Info and Center Controls */}
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h3 className="text-lg font-semibold mb-4">View Info</h3>
               <div className="space-y-4">
                 <ZoomDisplay bounds={bounds} />
                 <CenterControls
